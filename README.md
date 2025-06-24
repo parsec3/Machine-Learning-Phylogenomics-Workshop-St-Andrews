@@ -94,6 +94,18 @@ Its inputs and outputs are, respectively, unaligned and aligned DNA nucleotide m
 ]
 ```
 
+Run Ali-U-Net.py like this:
+
+```
+python Ali-U-Net.py 8 32 relu he_normal Dataset.npz ./checkpoints model.h5
+```
+
+Once you have saved the model and created a Pred_Dataset.npz file as instructed above, you can run the AliU_Pred.py file:
+
+```
+AliU_Pred.py 8 32 model.h5 Pred_Dataset.npz output/aligned
+```
+
 For a more detailed explanation, see this repository:
 
 https://github.com/parsec3/Ali-U-Net
