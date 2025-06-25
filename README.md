@@ -35,13 +35,13 @@ The other dataset is one we will have to simulate ourselves, but, don't worry, i
 We want to train a neural network to do multiple sequence alignment, so we will simulate unaligned (our features) and aligned (our labels) DNA sequence matrices through the script AlignmentSim.py. It takes the following arguments in this order: rows columns margin_size skipped_rows number_of_alignments file_name
 
 ```
-python3 AlignmentSim.py 8 32 4 3 10000 Dataset.npz
+python AlignmentSim.py 8 32 4 3 10000 Dataset.npz
 ```
 
 Then, we load the dataset in Ali-U-Net.py to train our model. We can also make a second dataset of prediction data to make predictions in our AliU_Pred.py script:
 
 ```
-python3 AlignmentSim.py 8 32 4 3 1000 Pred_Dataset.npz
+python AlignmentSim.py 8 32 4 3 1000 Pred_Dataset.npz
 ```
 
 ## Iris Model
@@ -103,7 +103,7 @@ python Ali-U-Net.py 8 32 relu he_normal Dataset.npz ./checkpoints model.h5
 Once you have saved the model and created a Pred_Dataset.npz file as instructed above, you can run the AliU_Pred.py file:
 
 ```
-AliU_Pred.py 8 32 model.h5 Pred_Dataset.npz output/aligned
+python AliU_Pred.py 8 32 model.h5 Pred_Dataset.npz output/aligned
 ```
 
 For a more detailed explanation, see this repository:
