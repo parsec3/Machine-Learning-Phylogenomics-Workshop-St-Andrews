@@ -30,10 +30,6 @@ data = np.load(args.data_file)
 x_data = data['x']
 y_data = data['y']
 
-# One-hot encode the data (assumes classes are integers 0–4)
-x_data = tf.one_hot(x_data, depth=5)
-y_data = tf.one_hot(y_data, depth=5)
-
 # Train-test split
 x_train, x_test, y_train, y_test = train_test_split(
     x_data, y_data, test_size=0.2, random_state=seed
@@ -94,19 +90,19 @@ model.summary()
 
 # Prepare datasets
 batch_size = 64
-epochs = 50
+epochs = 5
 train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(batch_size).prefetch(tf.data.AUTOTUNE)
 test_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test)).batch(batch_size).prefetch(tf.data.AUTOTUNE)
 
 # Checkpoint callback
-filepath = args.file_path + "/checkpoint-epoch-{epoch:02d}-{val_accuracy:.4f}.hdf5"
+filepath = args.file_path + "/checkpoint-epoch-{epoch:02d}-{val_accuracy:.4f}.keras"
 my_callbacks = [
     tf.keras.callbacks.ModelCheckpoint(filepath=filepath, save_weights_only=False,
                                        monitor='val_accuracy', save_best_only=True)
 ]
 
 # Train the model
-history = model.fit(train_dataset, validation_data=test_dataset, epochs=epochs, verbose=2, callbacks=my_callbacks)
+history = model.fit(train_dataset, validation_data=test_dataset, epochs=epochs, verbose=1, callbacks=my_callbacks)
 
 # Save metrics
 np.save('acc.npy', history.history['accuracy'])
