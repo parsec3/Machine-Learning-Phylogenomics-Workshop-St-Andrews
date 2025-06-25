@@ -22,15 +22,6 @@ def recode_seq(seq):
         a[i] = mapping.get(c.upper(), 4)  # default to gap if unrecognized
     return a
 
-# One-hot encoding
-def convert2unit_vector(sequence_array):
-    sequences = []
-    for seq in sequence_array:
-        recoded = [recode_seq(row) for row in seq]
-        one_hot = tf.keras.utils.to_categorical(recoded, num_classes=5, dtype='uint8')
-        sequences.append(one_hot)
-    return np.array(sequences)
-
 # Decode model predictions
 nucleotide = ["A", "C", "G", "T", "-"]
 def make_predict_sequences(pred_array):
@@ -55,10 +46,9 @@ args = parser.parse_args()
 # Load model and input data
 model = tf.keras.models.load_model(args.model)
 data = np.load(args.npz_file)
-unaligned_data = data['x']  # shape: (N, rows, columns)
 
-# Convert character array to one-hot encoded input
-x_encoded = convert2unit_vector(unaligned_data)  # shape: (N, rows, columns, 5)
+x_encoded = data['x']  # shape: (N, rows, columns)
+y_encoded = data['y']
 
 # Predict
 predictions = model.predict(x_encoded, verbose=1)
@@ -72,7 +62,7 @@ for idx in range(5):
     ])
 
     # 2) Decode the ground-truth alignment
-    y_true_int = np.argmax(y_true_onehot[idx], axis=-1)
+    y_true_int = np.argmax(y_encoded[idx], axis=-1)
     y_true_seqs = np.array([
       ''.join(nucleotide[i] for i in row) 
       for row in y_true_int
