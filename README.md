@@ -103,6 +103,7 @@ python Ali-U-Net.py 8 32 relu he_normal Dataset.npz ./checkpoints model.h5
 Once you have saved the model and created a Pred_Dataset.npz file as instructed above, you can run the AliU_Pred.py file:
 
 ```
+mkdir output
 python AliU_Pred.py 8 32 model.h5 Pred_Dataset.npz output/aligned
 ```
 
