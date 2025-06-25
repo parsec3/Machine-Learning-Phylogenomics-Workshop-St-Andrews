@@ -22,7 +22,7 @@ rows = args.rows
 columns = args.columns
 margin = args.margin
 skip_rows = args.skip_rows
-arrays = args.alignments
+alignments = args.alignments
 filename = args.filename
 
 def random_numbers_adding_up_100():
