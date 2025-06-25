@@ -41,7 +41,7 @@ python AlignmentSim.py 8 32 4 3 10000 Dataset.npz
 Then, we load the dataset in Ali-U-Net.py to train our model. We can also make a second dataset of prediction data to make predictions in our AliU_Pred.py script:
 
 ```
-python AlignmentSim.py 8 32 4 3 1000 Pred_Dataset.npz
+python AlignmentSim.py 8 32 4 3 100 Pred_Dataset.npz
 ```
 
 ## Iris Model
