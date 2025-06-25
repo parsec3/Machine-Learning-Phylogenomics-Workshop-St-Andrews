@@ -1,64 +1,92 @@
-# Import required libraries
-import pandas as pd
-import numpy as np
-import seaborn as sns
+import tensorflow as tf
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler,LabelBinarizer
 import matplotlib.pyplot as plt
 
-from sklearn import datasets
-from sklearn.preprocessing import normalize, LabelEncoder
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.utils import to_categorical
-from sklearn.model_selection import train_test_split
+def create_model(loss):
+    model = tf.keras.Sequential([
+    tf.keras.layers.InputLayer(input_shape=(4,), name='Input_Layer'),
+    tf.keras.layers.Dense(12, activation='relu', input_dim=(4,)),
+    
+    # You can test more hiddenlayers, but with 10 neurones we already achieve 100% or almost 100%.
+    #tf.keras.layers.Dense(8, activation='relu'),
+    #tf.keras.layers.Dense(400, activation='relu'),
+    #tf.keras.layers.Dense(400, activation='relu'),
 
-# Load the Iris dataset
-iris = datasets.load_iris()
-data = pd.DataFrame(data=iris.data, columns=iris.feature_names)
-data['Species'] = iris.target
+    tf.keras.layers.Dense(3, activation='softmax') # 3 classes
+    ])
+    
+    # Compile the model
+    opt = tf.keras.optimizers.Adam(learning_rate=0.001, epsilon=1e-7)
+    model.compile(optimizer=opt, loss=loss, metrics=['accuracy'])
 
-# Rename columns for consistency
-data.rename(columns={
-    "sepal length (cm)": "SepalLengthCm",
-    "sepal width (cm)": "SepalWidthCm",
-    "petal length (cm)": "PetalLengthCm",
-    "petal width (cm)": "PetalWidthCm"
-}, inplace=True)
+    return model
 
-# Encode labels
-le = LabelEncoder()
-data['Species'] = le.fit_transform(data['Species'])
 
-# Split features and labels
-X = data.iloc[:, :-1].values
-y = data['Species'].values
+def plot_training_history(history):
 
-# Normalize features
-X_normalized = normalize(X, axis=0)
+    acc = history.history['accuracy']
+    val_acc = history.history['val_accuracy']
+    loss = history.history['loss']
+    val_loss = history.history['val_loss']
+    epochs = range(1, len(loss) + 1)
 
-# One-hot encode labels
-y_encoded = to_categorical(y, num_classes=3)
+    # Create figure with two subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
-# Split into train/test sets (80/20)
-X_train, X_test, y_train, y_test = train_test_split(
-    X_normalized, y_encoded, test_size=0.2, random_state=42
-)
+    # Plot Loss
+    ax1.plot(epochs, loss, label='Training Loss')
+    if val_loss:
+        ax1.plot(epochs, val_loss, label='Validation Loss')
+    ax1.set_title('Loss')
+    ax1.set_xlabel('Epochs')
+    ax1.set_ylabel('Loss')
+    ax1.legend()
+    ax1.grid(True)
 
-# Define the neural network model
-model = Sequential([
-    Dense(1000, input_dim=4, activation='relu'),
-    Dense(500, activation='relu'),
-    Dense(300, activation='relu'),
-    Dropout(0.2),
-    Dense(3, activation='softmax')
-])
+    # Plot Accuracy
+    if acc:
+        ax2.plot(epochs, acc, label='Training Accuracy')
+    if val_acc:
+        ax2.plot(epochs, val_acc, label='Validation Accuracy')
+    ax2.set_title('Accuracy')
+    ax2.set_xlabel('Epochs')
+    ax2.set_ylabel('Accuracy')
+    ax2.legend()
+    ax2.grid(True)
+    ax2.set_ylim(0, 1.001)
 
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.summary()
+    # Display the plots
+    plt.tight_layout()
+    plt.show()
 
-# Train the model
-model.fit(X_train, y_train, validation_data=(X_test, y_test), batch_size=20, epochs=10, verbose=1)
+    return
 
-# Evaluate accuracy manually
-predictions = model.predict(X_test)
-accuracy = np.mean(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) * 100
-print(f"Accuracy of the model: {accuracy:.2f}%")
+if __name__ == '__main__':
+
+    # Load the dataset:
+    iris = load_iris()
+    X = iris.data       # Features
+    y = iris.target     # Labels
+    
+    # Normalize features
+    scaler = StandardScaler()
+    X = scaler.fit_transform(X)
+    print(X.min())
+    print(X.max())
+    
+    # If we use an integer encoding for the labels, we specify:
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    loss='sparse_categorical_crossentropy'
+    
+    # specify randon seed for tensorflow in order to get more reproducable traiing results:
+    tf.random.set_seed(42)
+    # This does not make the training entirely reproducable!
+    
+    model = create_model(loss)
+    
+    # Train the model
+    history = model.fit(X_train, y_train, epochs=150, batch_size=16, validation_data=(X_test, y_test))
+    
+    plot_training_history(history)
