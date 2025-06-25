@@ -49,23 +49,26 @@ python AlignmentSim.py 8 32 4 3 1000 Pred_Dataset.npz
 For our Iris dataset, we use a simple sequence of dense layers as our model:
 
 ```
-from keras.models import Sequential
-from keras.layers import Dense,Activation,Dropout
-from keras.layers import BatchNormalization
-from keras.utils import np_utils
-```
+import tensorflow as tf
 
-```
-model = Sequential([
-    Dense(1000, input_dim=4, activation='relu'),
-    Dense(500, activation='relu'),
-    Dense(300, activation='relu'),
-    Dropout(0.2),
-    Dense(3, activation='softmax')
-])
+def create_model(loss):
+    model = tf.keras.Sequential([
+    tf.keras.layers.InputLayer(input_shape=(4,), name='Input_Layer'),
+    tf.keras.layers.Dense(12, activation='relu', input_dim=(4,)),
+    
+    # You can test more hiddenlayers, but with 10 neurones we already achieve 100% or almost 100%.
+    #tf.keras.layers.Dense(8, activation='relu'),
+    #tf.keras.layers.Dense(400, activation='relu'),
+    #tf.keras.layers.Dense(400, activation='relu'),
 
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-model.summary()
+    tf.keras.layers.Dense(3, activation='softmax') # 3 classes
+    ])
+    
+    # Compile the model
+    opt = tf.keras.optimizers.Adam(learning_rate=0.001, epsilon=1e-7)
+    model.compile(optimizer=opt, loss=loss, metrics=['accuracy'])
+
+    return model
 ```
 
 The model's labels are the species names normalized as one-hot vectors:
